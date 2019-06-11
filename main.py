@@ -2,6 +2,8 @@ import reed as rs
 import audio_generator as gen
 import array
 import argparse
+import pyaudio
+import wave
 R = rs.RSCodec(10)
 BASE_FREQ = 1000
 STEP = 30
@@ -29,6 +31,24 @@ def demodulate(recarr):
 	msg = ''.join(chr(i) for i in rec)
 	return bytearray(msg)
 
+def play_audio(filename):
+	print "Transmitting..."
+	chunk = 1024  
+
+	f = wave.open(filename,"rb")  
+	p = pyaudio.PyAudio()  
+	stream = p.open(format = p.get_format_from_width(f.getsampwidth()),  
+	                channels = f.getnchannels(),  
+	                rate = f.getframerate(),  
+	                output = True)  
+	data = f.readframes(chunk)  
+	while data:  
+	    stream.write(data)  
+	    data = f.readframes(chunk)  
+	stream.stop_stream()  
+	stream.close()  
+	p.terminate()   
+
 def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("message", help="Enter the message to be sent!")
@@ -36,6 +56,7 @@ def main():
 
 	SEND = modulate(args.message)
 	file = gen.write_file(SEND)	
+	play_audio(file)
 	print SEND
 
 if __name__ == '__main__':

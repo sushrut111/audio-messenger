@@ -3,6 +3,7 @@ from math import sin, pi
 import wave
 import random
 import numpy as np
+import pyaudio
 from scipy.io import wavfile
 
 RATE = 44100
