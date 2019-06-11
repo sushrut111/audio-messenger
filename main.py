@@ -1,7 +1,7 @@
 import reed as rs
-import gen
+import audio_generator as gen
 import array
-
+import argparse
 R = rs.RSCodec(10)
 BASE_FREQ = 1000
 STEP = 30
@@ -14,8 +14,6 @@ def encode_byte(x):
 def modulate(msg):
 	encoded = R.encode(msg)
 	ba = bytearray(encoded)
-	for i in ba:
-		print i
 	sendarr = []
 	sendarr.append(HS_START)
 	for onebyte in ba:
@@ -31,11 +29,15 @@ def demodulate(recarr):
 	msg = ''.join(chr(i) for i in rec)
 	return bytearray(msg)
 
-SEND = modulate("9403039900")
-file = gen.write_file(SEND)
-print SEND
-encode_msg = demodulate(gen.read_file(file))
-decoded_msg = R.decode(encode_msg)
-print decoded_msg
-# print SEND
+def main():
+	parser = argparse.ArgumentParser()
+	parser.add_argument("message", help="Enter the message to be sent!")
+	args = parser.parse_args()
 
+	SEND = modulate(args.message)
+	file = gen.write_file(SEND)	
+	print SEND
+
+if __name__ == '__main__':
+
+	main()

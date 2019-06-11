@@ -14,7 +14,7 @@ def write_file(sendarr):
 	each frequency sustains for 0.1 seconds
 	thus the duration of audio will be len(sendarr)*0.1s
 	'''
-	filename = 'signal_sushrut.wav'
+	filename = '../audio/signal_sushrut.wav'
 	t = np.linspace(0,0.1,RATE/10)
 	signals = []
 	wvData = ""
