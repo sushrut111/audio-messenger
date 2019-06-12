@@ -33,7 +33,7 @@ When the .wav file is played and decoder is listening, message is decoded and di
  RATE = 44100 # Sampling rate
  t = np.linspace(0,0.1,RATE/10)
  # t contains the points at which values of sine are calculated. Thus we have RATE/10 i.e. 4410 samples in 100ms
- signal = np.sin(2*np.pi*t)
+ signal = np.sin(2*np.pi*Fmsg[i]*t)
  # this is the signal corresponding to one frequency.
  ```
 - Similarly, signals for all the frequencies are calculated. The `signal` variable contains 4410 samples of sine wave of that particular frequency. As each frequency is played for 100ms, the total audio duration will be 100ms * the number of characters in reed-solomon encoded message. All the calculated samples are written in a .wav file and then the file is played back as transmission.
