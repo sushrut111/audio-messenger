@@ -11,7 +11,7 @@ END_MSG = "{|}"
 
 SAMPLING_RATE = 50000
 maxVol=2**15-1 #maximum amplitude
-FREQ_DURATION = 0.1 #Duration of one frquency in the audio
+FREQ_DURATION = 0.05 #Duration of one frquency in the audio
 
 BASE_FREQ = START_HZ
 HS_START = HANDSHAKE_START_HZ
