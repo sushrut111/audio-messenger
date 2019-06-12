@@ -1,8 +1,18 @@
 import reed as rs
-import alsaaudio
 import numpy as np
 import pyaudio
 from constants import *
+
+library = ''
+
+try:
+    import alsaaudio
+except Exception as e:
+    print("alsaaudio could not be imported")
+    library = 'pyaudio'
+else:
+    library = 'alsaaudio'
+    
 
 R = rs.RSCodec(10)
 
@@ -40,7 +50,7 @@ class Message(object):
             self.message = self.message + msg
 
     def show_message(self):
-        print(self.message)
+        print("Message: " + self.message)
 
 def listen_all(frame_rate=SAMPLING_RATE, interval=FREQ_DURATION):
     frames_per_buffer = int(round((interval / 2) * frame_rate))
@@ -52,34 +62,59 @@ def listen_all(frame_rate=SAMPLING_RATE, interval=FREQ_DURATION):
 
     p = pyaudio.PyAudio()
 
-    stream = p.open(format=FORMAT,
+    mic = p.open(format=FORMAT,
                     channels=CHANNELS,
                     rate=RATE,
                     input=True,
                     frames_per_buffer=frames_per_buffer)
 
-
     frames = []
     in_packet = False
     packet = []
     print("Listening...")
-
+    msg_started = False
+    messages = ""
+    messages_len = 0
+    message_holder = Message()
     while True:
-        data = stream.read(frames_per_buffer)
+        data = mic.read(frames_per_buffer)
         chunk = np.fromstring(data, dtype=np.int16)
         dom = dominant(frame_rate, chunk)
         if in_packet and match(dom, HANDSHAKE_END_HZ):
+
+            ############## decode block ###############
             byte_stream = extract_packet(packet)
             encoded_msg = demodulate(byte_stream)
             try:
-                msg = R.decode(encoded_msg)
+                this_msg = R.decode(encoded_msg)
             except Exception as e:
-                msg = ''
-                print(e)
-            print("Message:"+msg)
+                this_msg = ''
+                # print(e)
+            ###########################################
+            ############## synthesis block ############
+            if this_msg == START_MSG:
+                print("Reception started")
+                if msg_started:
+                    message_holder.show_message()
+                msg_started = True
+                message_holder = Message()
+            elif this_msg == END_MSG:
+                print("Message received")
+                message_holder.show_message()
+                message_holder = Message()
+                msg_started = False
+                print("Listening...")
+            else:
+                if not msg_started:
+                    print('Messages out of sync!')
+                message_holder.add_message(this_msg)
+                message_holder.show_message()
+
+
+
+
             packet = []
             in_packet = False
-            print("Listening...")
 
         elif in_packet:
             packet.append(dom)
@@ -121,21 +156,23 @@ def listen_linux(frame_rate=SAMPLING_RATE, interval=FREQ_DURATION):
                 # print(e)
             ###########################################
             ############## synthesis block ############
-            if this_msg == START_MSG:
-                print("started")
+            if START_MSG in this_msg:                
+                print("Reception started")
                 if msg_started:
                     message_holder.show_message()
                 msg_started = True
                 message_holder = Message()
-            elif this_msg == END_MSG:
-                print("ended")
+            elif END_MSG in this_msg:
+                print("Message received!")
                 message_holder.show_message()
                 message_holder = Message()
                 msg_started = False
+                print("Listening...")
             else:
                 if not msg_started:
                     print('Messages out of sync!')
                 message_holder.add_message(this_msg)
+                message_holder.show_message()
 
 
 
@@ -149,5 +186,7 @@ def listen_linux(frame_rate=SAMPLING_RATE, interval=FREQ_DURATION):
             in_packet = True
 
 if __name__ == '__main__':
-
-    listen_linux()
+    if library == 'alsaaudio':
+        listen_linux()
+    else:
+        listen_all()
