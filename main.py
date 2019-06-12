@@ -9,6 +9,7 @@ BASE_FREQ = 1000
 STEP = 30
 HS_START = 10000
 HS_STOP = 10500
+MSGLEN = 8 #message of MSGLEN characters will be sent in one go
 
 def encode_byte(x):
 	return BASE_FREQ + x*STEP
@@ -49,15 +50,36 @@ def play_audio(filename):
 	stream.close()  
 	p.terminate()   
 
+def split2len(s, n):
+    def _f(s, n):
+        while s:
+            yield s[:n]
+            s = s[n:]
+    return list(_f(s, n))
+
+def transmit(message):
+	SEND = modulate(message)
+	file = gen.write_file(SEND)	
+	play_audio(file)
+	print SEND
+
+def transmit_wrapper(fullmessage):	
+	message_array = split2len(fullmessage,MSGLEN)
+	msgs_length = len(message_array)
+
+	#First transmit the number of transmissions for receiver to know how long to receive for single message
+	transmit(str(msgs_length)) 
+
+	# Start transmitting message array
+	for message in message_array:
+		transmit(message)
+
 def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("message", help="Enter the message to be sent!")
 	args = parser.parse_args()
-
-	SEND = modulate(args.message)
-	file = gen.write_file(SEND)	
-	play_audio(file)
-	print SEND
+	message = args.message
+	transmit_wrapper(message)
 
 if __name__ == '__main__':
 
