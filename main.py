@@ -10,6 +10,8 @@ STEP = 30
 HS_START = 10000
 HS_STOP = 10500
 MSGLEN = 8 #message of MSGLEN characters will be sent in one go
+START_MSG = "{@}"
+END_MSG = "{|}"
 
 def encode_byte(x):
 	return BASE_FREQ + x*STEP
@@ -67,12 +69,11 @@ def transmit_wrapper(fullmessage):
 	message_array = split2len(fullmessage,MSGLEN)
 	msgs_length = len(message_array)
 
-	#First transmit the number of transmissions for receiver to know how long to receive for single message
-	transmit(str(msgs_length)) 
-
+	transmit(START_MSG)
 	# Start transmitting message array
 	for message in message_array:
 		transmit(message)
+	transmit(END_MSG)
 
 def main():
 	parser = argparse.ArgumentParser()
