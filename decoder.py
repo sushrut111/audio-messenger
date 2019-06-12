@@ -2,14 +2,9 @@ import reed as rs
 import alsaaudio
 import numpy as np
 import pyaudio
+from constants import *
+
 R = rs.RSCodec(10)
-HANDSHAKE_START_HZ = 10000
-HANDSHAKE_END_HZ = 10500
-START_HZ = 1000
-STEP_HZ = 30
-BITS = 4
-START_MSG = "{@}"
-END_MSG = "{|}"
 
 def dominant(frame_rate, chunk):
     w = np.fft.fft(chunk)
@@ -47,7 +42,7 @@ class Message(object):
     def show_message(self):
         print(self.message)
 
-def listen_all(frame_rate=44100, interval=0.1):
+def listen_all(frame_rate=SAMPLING_RATE, interval=FREQ_DURATION):
     frames_per_buffer = int(round((interval / 2) * frame_rate))
     FORMAT = pyaudio.paInt16
     CHANNELS = 1
@@ -92,10 +87,10 @@ def listen_all(frame_rate=44100, interval=0.1):
             in_packet = True
 
 
-def listen_linux(frame_rate=44100, interval=0.1):
+def listen_linux(frame_rate=SAMPLING_RATE, interval=FREQ_DURATION):
     mic = alsaaudio.PCM(alsaaudio.PCM_CAPTURE, alsaaudio.PCM_NORMAL)
     mic.setchannels(1)
-    mic.setrate(44100)
+    mic.setrate(frame_rate)
     mic.setformat(alsaaudio.PCM_FORMAT_S16_LE)
 
     num_frames = int(round((interval / 2) * frame_rate))
@@ -127,11 +122,13 @@ def listen_linux(frame_rate=44100, interval=0.1):
             ###########################################
             ############## synthesis block ############
             if this_msg == START_MSG:
+                print("started")
                 if msg_started:
                     message_holder.show_message()
                 msg_started = True
                 message_holder = Message()
             elif this_msg == END_MSG:
+                print("ended")
                 message_holder.show_message()
                 message_holder = Message()
                 msg_started = False

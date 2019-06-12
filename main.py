@@ -4,17 +4,11 @@ import array
 import argparse
 import pyaudio
 import wave
+from constants import *
 R = rs.RSCodec(10)
-BASE_FREQ = 1000
-STEP = 30
-HS_START = 10000
-HS_STOP = 10500
-MSGLEN = 8 #message of MSGLEN characters will be sent in one go
-START_MSG = "{@}"
-END_MSG = "{|}"
 
 def encode_byte(x):
-	return BASE_FREQ + x*STEP
+	return BASE_FREQ + x*STEP_HZ
 
 def modulate(msg):
 	encoded = R.encode(msg)
@@ -30,7 +24,7 @@ def demodulate(recarr):
 	print recarr
 	recarr = recarr[1:]
 	recarr = recarr[:-1]
-	rec = [(f-BASE_FREQ)/STEP for f in recarr]
+	rec = [(f-BASE_FREQ)/STEP_HZ for f in recarr]
 	msg = ''.join(chr(i) for i in rec)
 	return bytearray(msg)
 

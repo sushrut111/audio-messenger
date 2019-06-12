@@ -5,9 +5,7 @@ import random
 import numpy as np
 import pyaudio
 from scipy.io import wavfile
-
-RATE = 44100
-maxVol=2**15-1 #maximum amplitude
+from constants import *
 
 def write_file(sendarr):
 	'''
@@ -16,19 +14,19 @@ def write_file(sendarr):
 	thus the duration of audio will be len(sendarr)*0.1s
 	'''
 	filename = '../audio/signal_sushrut.wav'
-	t = np.linspace(0,0.1,RATE/10)
+	t = np.linspace(0, FREQ_DURATION, int(SAMPLING_RATE*FREQ_DURATION))
 	signals = []
 	wvData = ""
 	for asample in sendarr:
 		signal = maxVol * np.sin(2*np.pi*asample*t)
-		for i in range(RATE/10):
+		for i in range(int(SAMPLING_RATE*FREQ_DURATION)):
 			wvData +=pack('h',signal[i])
 	'''
 	now we have all the signals written in wavedata variable
 	we write it into wav file
 	'''
 	wv = wave.open(filename, 'w')
-	wv.setparams((1, 2, RATE, 0, 'NONE', 'not compressed'))
+	wv.setparams((1, 2, SAMPLING_RATE, 0, 'NONE', 'not compressed'))
 	wv.writeframes(wvData)
 	wv.close()
 	return filename
