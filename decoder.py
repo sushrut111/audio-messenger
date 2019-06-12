@@ -170,9 +170,9 @@ def listen_linux(frame_rate=SAMPLING_RATE, interval=FREQ_DURATION):
                 print("Listening...")
             else:
                 if not msg_started:
-                    print('Messages out of sync!')
+                    print('Messages out of sync! Displaying the buffer: ')
+                    message_holder.show_message()
                 message_holder.add_message(this_msg)
-                message_holder.show_message()
 
 
 
