@@ -124,7 +124,6 @@ def listen_linux(frame_rate=44100, interval=0.1):
             except Exception as e:
                 this_msg = ''
                 # print(e)
-            print(this_msg)
             ###########################################
             ############## synthesis block ############
             if this_msg == START_MSG:
@@ -137,10 +136,11 @@ def listen_linux(frame_rate=44100, interval=0.1):
                 message_holder = Message()
                 msg_started = False
             else:
+                if not msg_started:
+                    print('Messages out of sync!')
                 message_holder.add_message(this_msg)
 
 
-            message_holder.show_message()
 
 
             packet = []
