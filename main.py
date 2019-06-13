@@ -62,8 +62,8 @@ def transmit(message):
 def transmit_wrapper(fullmessage):	
 	message_array = split2len(fullmessage,MSGLEN)
 	msgs_length = len(message_array)
-
-	transmit(START_MSG)
+	initiate_handshake = str(msgs_length) + START_MSG
+	transmit(initiate_handshake)
 	# Start transmitting message array
 	for message in message_array:
 		transmit(message)
