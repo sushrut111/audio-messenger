@@ -32,9 +32,17 @@ def extract_packet(freqs):
     bit_chunks = [int(f) for f in freqs if f>1000 and f<10000]
     return bit_chunks
 
+def returnchar(c):
+    if c<256 and c>=0 :
+        return chr(c)
+    else :
+        if c<0:
+            return chr(0)
+        return chr(255)
+
 def demodulate(recarr):
     rec = [(f-START_HZ)/STEP_HZ for f in recarr]
-    msg = ''.join(chr(i) for i in rec)
+    msg = ''.join(returnchar(i) for i in rec)
     return bytearray(msg)
 
 class Message(object):
