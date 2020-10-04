@@ -32,6 +32,7 @@ def extract_packet(freqs):
     return bit_chunks
 
 def returnchar(c):
+    c = int(c)
     if c<256 and c>=0 :
         return chr(c)
     else :
@@ -42,7 +43,7 @@ def returnchar(c):
 def demodulate(recarr):
     rec = [(f-START_HZ)/STEP_HZ for f in recarr]
     msg = ''.join(returnchar(i) for i in rec)
-    return bytearray(msg)
+    return bytearray(msg, 'utf-8')
 
 class Message(object):
     """docstring for Message"""
@@ -68,9 +69,9 @@ class Message(object):
         design = "#########"
         for i in range(len(self.message)):
             design += "#"
-        print design
+        print(design)
         print("Message: " + self.message)
-        print design
+        print(design)
 def listen_all(frame_rate=SAMPLING_RATE, interval=FREQ_DURATION):
     frames_per_buffer = int(round((interval / 2) * frame_rate))
     FORMAT = pyaudio.paInt16
@@ -113,14 +114,10 @@ def start_listening(micdata):
     messages = ""
     messages_len = 0
     while True:
-        if library == "alsaaudio":
-            l, data = mic.read()
-        else:
-            data = mic.read(frames_per_buffer)
+        data = mic.read(frames_per_buffer)
         chunk = np.fromstring(data, dtype=np.int16)
         dom = dominant(SAMPLING_RATE, chunk)
         if in_packet and match(dom, HANDSHAKE_END_HZ):
-
             ############## decode block ###############
             byte_stream = extract_packet(packet)
             encoded_msg = demodulate(byte_stream)
@@ -128,7 +125,7 @@ def start_listening(micdata):
                 this_msg = R.decode(encoded_msg)
             except Exception as e:
                 this_msg = ''
-                # print(e)
+                print(e)
             ###########################################
             ############## synthesis block ############
             if START_MSG in this_msg:
