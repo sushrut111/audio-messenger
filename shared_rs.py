@@ -1,2 +1,2 @@
 import unireedsolomon as rs
-coder = rs.RSCoder(20,13)
+coder = rs.RSCoder(10,9)

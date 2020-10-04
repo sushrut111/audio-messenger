@@ -32,9 +32,8 @@ def returnchar(c):
 
 def demodulate(recarr):
     rec = [(f-START_HZ)/STEP_HZ for f in recarr]
-    msg = ''.join(returnchar(i) for i in rec)
-    print(msg)
-    return bytearray(msg, 'utf-8')
+    rec = [int(x) if (0 <= x and 256 > x) else 0 for x in rec]
+    return bytearray(rec)
 
 class Message(object):
     """docstring for Message"""
@@ -111,9 +110,9 @@ def start_listening(micdata):
         if in_packet and match(dom, HANDSHAKE_END_HZ):
             ############## decode block ###############
             byte_stream = extract_packet(packet)
-            encoded_msg = demodulate(byte_stream)
+            encoded_msg = demodulate(byte_stream).decode('utf-8')
             try:
-                this_msg = coder.decode(encoded_msg)
+                this_msg, _ = coder.decode(encoded_msg)
             except Exception as e:
                 this_msg = ''
                 print(e)
