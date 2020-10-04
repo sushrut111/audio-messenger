@@ -21,7 +21,7 @@ def modulate(msg):
 	return sendarr
 
 def demodulate(recarr):
-	print recarr
+	print(recarr)
 	recarr = recarr[1:]
 	recarr = recarr[:-1]
 	rec = [(f-BASE_FREQ)/STEP_HZ for f in recarr]
@@ -29,7 +29,7 @@ def demodulate(recarr):
 	return bytearray(msg)
 
 def play_audio(filename):
-	print "Transmitting..."
+	print("Transmitting...")
 	chunk = 1024  
 
 	f = wave.open(filename,"rb")  
@@ -57,7 +57,7 @@ def transmit(message):
 	SEND = modulate(message)
 	file = gen.write_file(SEND)	
 	play_audio(file)
-	print SEND
+	print(SEND)
 
 def transmit_wrapper(fullmessage):	
 	message_array = split2len(fullmessage,MSGLEN)

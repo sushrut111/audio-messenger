@@ -13,14 +13,14 @@ def write_file(sendarr):
 	each frequency sustains for 0.1 seconds
 	thus the duration of audio will be len(sendarr)*0.1s
 	'''
-	filename = '../audio/signal_sushrut.wav'
+	filename = 'sushrut.wav'
 	t = np.linspace(0, FREQ_DURATION, int(SAMPLING_RATE*FREQ_DURATION))
 	signals = []
-	wvData = ""
+	wvData = b''
 	for asample in sendarr:
 		signal = maxVol * np.sin(2*np.pi*asample*t)
 		for i in range(int(SAMPLING_RATE*FREQ_DURATION)):
-			wvData +=pack('h',signal[i])
+			wvData +=pack('h',int(signal[i]))
 	'''
 	now we have all the signals written in wavedata variable
 	we write it into wav file
