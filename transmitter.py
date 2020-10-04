@@ -1,32 +1,24 @@
-import reed as rs
 import audio_generator as gen
 import array
 import argparse
 import pyaudio
 import wave
+from shared_rs import coder
 from constants import *
-R = rs.RSCodec(10)
+
 
 def encode_byte(x):
 	return BASE_FREQ + x*STEP_HZ
 
 def modulate(msg):
-	encoded = R.encode(msg)
-	ba = bytearray(encoded)
+	encoded = coder.encode(msg)
+	ba = bytearray(encoded, 'utf-8')
 	sendarr = []
 	sendarr.append(HS_START)
 	for onebyte in ba:
 		sendarr.append(encode_byte(onebyte))
 	sendarr.append(HS_STOP)
 	return sendarr
-
-def demodulate(recarr):
-	print(recarr)
-	recarr = recarr[1:]
-	recarr = recarr[:-1]
-	rec = [(f-BASE_FREQ)/STEP_HZ for f in recarr]
-	msg = ''.join(chr(i) for i in rec)
-	return bytearray(msg)
 
 def play_audio(filename):
 	print("Transmitting...")

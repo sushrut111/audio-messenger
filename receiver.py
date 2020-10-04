@@ -1,19 +1,9 @@
-import reed as rs
+from shared_rs import coder
 import numpy as np
 import pyaudio
 from constants import *
 
-library = ''
-
-try:
-    import alsaaudio
-except Exception as e:
-    library = 'pyaudio'
-else:
-    library = 'alsaaudio'
-    
-
-R = rs.RSCodec(10)
+library = 'pyaudio'
 
 def dominant(frame_rate, chunk):
     w = np.fft.fft(chunk)
@@ -43,6 +33,7 @@ def returnchar(c):
 def demodulate(recarr):
     rec = [(f-START_HZ)/STEP_HZ for f in recarr]
     msg = ''.join(returnchar(i) for i in rec)
+    print(msg)
     return bytearray(msg, 'utf-8')
 
 class Message(object):
@@ -122,7 +113,7 @@ def start_listening(micdata):
             byte_stream = extract_packet(packet)
             encoded_msg = demodulate(byte_stream)
             try:
-                this_msg = R.decode(encoded_msg)
+                this_msg = coder.decode(encoded_msg)
             except Exception as e:
                 this_msg = ''
                 print(e)
