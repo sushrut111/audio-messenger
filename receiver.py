@@ -115,7 +115,7 @@ def start_listening(micdata):
     messages_len = 0
     while True:
         data = mic.read(frames_per_buffer)
-        chunk = np.fromstring(data, dtype=np.int16)
+        chunk = np.frombuffer(data, dtype=np.int16)
         dom = dominant(SAMPLING_RATE, chunk)
         if in_packet and match(dom, HANDSHAKE_END_HZ):
             ############## decode block ###############
