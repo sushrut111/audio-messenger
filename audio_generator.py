@@ -38,7 +38,7 @@ def read_file(filename):
 	'''
 	fs, data = wavfile.read(filename)
 	total_samples = len(data)
-	total_frequencies = total_samples/4410
+	total_frequencies = total_samples/(SAMPLING_RATE*FREQ_DURATION)
 	frequency_wise_samples = np.split(data,total_frequencies)
 	diff_freqs = []
 	for onechunk in frequency_wise_samples:	
