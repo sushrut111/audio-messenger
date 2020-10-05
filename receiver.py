@@ -6,6 +6,9 @@ from constants import *
 library = 'pyaudio'
 
 def dominant(frame_rate, chunk):
+    """
+    Calculate the fast fourier transform to get the dominant frequency
+    """
     w = np.fft.fft(chunk)
     freqs = np.fft.fftfreq(len(chunk))
 
@@ -14,23 +17,26 @@ def dominant(frame_rate, chunk):
     return abs(peak_freq * frame_rate) # in Hz
 
 def match(freq1, freq2):
+    """
+    Due to noise considerations, consider frequencies with difference
+    less than 20Hz as equal.
+    """
     return abs(freq1 - freq2) < 20
 
 def extract_packet(freqs):
+    """
+    Take out the valid frequencies from the received signals
+    """
     freqs = freqs[::2]
     bit_chunks = [int(f) for f in freqs if f>1000 and f<10000]
     return bit_chunks
 
-def returnchar(c):
-    c = int(c)
-    if c<256 and c>=0 :
-        return chr(c)
-    else :
-        if c<0:
-            return chr(0)
-        return chr(255)
-
 def demodulate(recarr):
+    """
+    Demodulate the modulated received message
+    :param recarr: This is list of frequencies
+    :returns : bytearray that can be decoded with rs decoder
+    """
     rec = [(f-START_HZ)/STEP_HZ for f in recarr]
     rec = [int(x) if (0 <= x and 256 > x) else 0 for x in rec]
     return bytearray(rec)
@@ -43,7 +49,12 @@ class Message(object):
         self.msgs_len = msgs_len
         self.print_warning = False
 
-    def add_message(self,msg):
+    def add_message(self, msg):
+        """
+        The message comes in chunks, keep appending incoming chunks to form 
+        the complete messae
+        :param msg str: The message received.
+        """
         if(msg == ''):
             pass
         else:
@@ -53,16 +64,23 @@ class Message(object):
         if self.msgs_len == 0:
             self.show_message()
             if self.print_warning:
-                print("A part of messages were lost due to noise!")
+                print("A part of message was lost due to noise!")
     
     def show_message(self):
+        """
+        Method to print the message on the terminal
+        """
         design = "#########"
         for i in range(len(self.message)):
             design += "#"
         print(design)
         print("Message: " + self.message)
         print(design)
+
 def listen_all(frame_rate=SAMPLING_RATE, interval=FREQ_DURATION):
+    """
+    Method to start listening with pyaudio library.
+    """
     frames_per_buffer = int(round((interval / 2) * frame_rate))
     FORMAT = pyaudio.paInt16
     CHANNELS = 1
@@ -95,20 +113,41 @@ def get_mic():
         return listen_all()
 
 def start_listening(micdata):
+    """
+    The method to keep the mic open for listening.
+    :param micdata: mic object
+    """
+
+    # Get the mic from the micdata object
     mic = micdata[0]
+
+    # Identify the mic's frames per buffer
     frames_per_buffer = micdata[1]
+
+    # Flag to know whether reception has started
     in_packet = False
+
+    # This will hold the package that is currently being received
     packet = []
     print("Listening...")
+
+    # Part of receiving protocol. This will be set to True when reception starts
     msg_started = False
     messages = ""
     messages_len = 0
     while True:
+        # Keep looping
         data = mic.read(frames_per_buffer)
         chunk = np.frombuffer(data, dtype=np.int16)
+
+        # Find the dominant frequency.
         dom = dominant(SAMPLING_RATE, chunk)
+
         if in_packet and match(dom, HANDSHAKE_END_HZ):
-            ############## decode block ###############
+            # Check if reception is completed and process the packet
+            # if reception has been ended
+            
+
             byte_stream = extract_packet(packet)
             encoded_msg = demodulate(byte_stream).decode('utf-8')
             try:
@@ -116,8 +155,9 @@ def start_listening(micdata):
             except Exception as e:
                 this_msg = ''
                 print(e)
-            ###########################################
-            ############## synthesis block ############
+            
+            
+            
             if START_MSG in this_msg:
                 print("Reception started")
                 msgs_len = int(this_msg.split('{')[0])
@@ -137,11 +177,19 @@ def start_listening(micdata):
             in_packet = False
 
         elif in_packet:
+            # Append incoming frequencies as this is in the packet
             packet.append(dom)
+
         elif match(dom, HANDSHAKE_START_HZ):
+            # Handshake start received, get ready to receive packet
             in_packet = True
 
 
 if __name__ == '__main__':
+    # Entry point
+
+    # Obtain the microphone to listen from
     micdata = get_mic()
+
+    # Enter into the infinite loop to listen to the signals
     start_listening(micdata)
