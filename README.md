@@ -10,7 +10,7 @@ When the .wav file is played and decoder is listening, message is decoded and di
 
 # How to use:
   - On one machine run main.py with `python transmitter.py {message}` 
-  - On another machine where message is to be received, run decoder.py with `python decoder.py`
+  - On another machine where message is to be received, run decoder.py with `python receiver.py`
   - The decoder file is infinite loop which keeps listeing continuosly. When main.py transmits audio decoder catches and decodes the message. Avoid noisy surroundings and keep the two devices close.
   
 # How this works:
