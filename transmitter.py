@@ -51,20 +51,12 @@ def play_audio(filename):
 	# this sets up the  portaudio system
 	p = pyaudio.PyAudio()  
 
-	# stream is opened
+	# stream is intialized, an object instance of PyAudio
 	stream = p.open(format = p.get_format_from_width(f.getsampwidth()),  
 	                channels = f.getnchannels(),  
 	                rate = f.getframerate(),  
 	                output = True)
-	''' 
-	:param int format: sampling size and format
-		pyaudio.get_format_from_width (width)- returns a PortAudio format constant for the specified width
-	:param int channels: number of channels
-	:param int rate: sampling rate
-	:param bool output: specifies whether this is an output format
-
-	:returns an intialized stream, object instance of PyAudio
-	'''
+	
 	# reading data in frames, the size of chunk variable
 	data = f.readframes(chunk)
 
