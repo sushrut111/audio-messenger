@@ -8,13 +8,23 @@ from constants import *
 
 
 def encode_byte(x):
-	''' This function encodes the frequency of the audio.
-	BASE_FREQ and STEP_HZ are constants defined in constants.py '''
+	''' 
+	This function encodes the frequency of the audio.
+	BASE_FREQ and STEP_HZ are constants defined in constants.py 
+
+	:param int x: frequency
+	:return int: frequency
+	'''
 	return BASE_FREQ + x*STEP_HZ
 
 def modulate(msg):
-	''' The parameter of the function is first encoded to utf-8 and then 
-	every byte in the bytearray is encoded using the encode_byte function. ''' 
+	''' 
+	The parameter of the function is first encoded to utf-8 and then 
+	every byte in the bytearray is encoded using the encode_byte function. 
+
+	:param string msg: script of the audio 
+	:returns list of integers that form a sine wave
+	''' 
 	encoded = coder.encode(msg)
 	ba = bytearray(encoded, 'utf-8')
 	sendarr = []
@@ -25,8 +35,13 @@ def modulate(msg):
 	return sendarr
 
 def play_audio(filename):
-	''' The audio is played using pyaudio.Pyaudio.open() where the wave file of the audio
-	 is input as read-binary. '''
+	''' 
+	The audio is played using pyaudio.Pyaudio.open() where the wave file of the audio
+	is input as read-binary. 
+
+	:param .wav filename: audio file
+	:wave audio file is played as output	
+	'''
 
 	print("Transmitting...")
 	chunk = 1024  
@@ -41,13 +56,24 @@ def play_audio(filename):
 	                channels = f.getnchannels(),  
 	                rate = f.getframerate(),  
 	                output = True)
+	''' 
+	:param int format: sampling size and format
+		pyaudio.get_format_from_width (width)- returns a PortAudio format constant for the specified width
+	:param int channels: number of channels
+	:param int rate: sampling rate
+	:param bool output: specifies whether this is an output format
+
+	:returns an intialized stream, object instance of PyAudio
+	'''
 	# reading data in frames, the size of chunk variable
 	data = f.readframes(chunk)
 
-	''' stream.write() is used to play audio by writing audio data into the stream
-	    stream.stop_stream() is used to pause the recording
-	    stream.close() is used to terminate the stream
-	    p.terminate() is used to terminate the portaudio session  '''  
+	''' 
+	stream.write() is used to play audio by writing audio data into the stream
+	stream.stop_stream() is used to pause the recording
+	stream.close() is used to terminate the stream
+	p.terminate() is used to terminate the portaudio session 
+	'''  
 	while data:  
 	    stream.write(data)  
 	    data = f.readframes(chunk)  
@@ -56,7 +82,14 @@ def play_audio(filename):
 	p.terminate()   
 
 def split2len(s, n):
-    ''' This function splits the parameter s into groups of size n '''
+    	''' 
+	This function splits the parameter s into batches of size n 
+	
+	:param string s: script of the audio file
+	:param int n: batch size
+
+	:returns list of batches 
+	'''
     def _f(s, n):
         while s:
             yield s[:n]
@@ -64,7 +97,12 @@ def split2len(s, n):
     return list(_f(s, n))
 
 def transmit(message):
-	''' The message is modulated and played '''
+	''' 
+	The message is modulated and played 
+
+	:param string message: script of the audio to be transmitted
+	:prints modulated message	
+	'''
 	SEND = modulate(message)
 	file = gen.write_file(SEND)	
 	play_audio(file)
