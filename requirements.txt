@@ -1,4 +1,4 @@
-numpy==1.19.2
+numpy==1.22.0
 PyAudio==0.2.11
 scipy==1.5.2
 unireedsolomon==1.0.2
